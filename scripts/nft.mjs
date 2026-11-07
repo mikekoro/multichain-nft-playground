@@ -1,6 +1,6 @@
 // The playground without a browser: the same chain modules through Vite SSR, printing one JSON line, for scripts.
 // Testnet by default, mainnet only with --mainnet. Contract state is carried in .testnet-state.local / .mainnet-state.local
-// (the browser's localStorage, exported; missing = empty, so contracts get deployed afresh).
+// (its own state, separate from the browser's localStorage; missing = empty, so contracts get deployed afresh).
 // A result can't be trusted on a timeout (a write can say "not broadcast" after broadcasting): ask the chain.
 // usage: node scripts/nft.mjs [--mainnet] <addresses|balances|types|mint|transfer|offer|bid|accept|cancel|burn|offers|readback> ...
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -62,12 +62,14 @@ const commands = {
   async types() {
     return (await load('/src/registry.ts')).TYPES.map((t) => t.key);
   },
-  /** mint <type> --to <address|self> [--name N] [--sample 0-5 | --uri U] */
+  /** mint <type> --to <address|self> [--name N] [--sample 1-6 | --uri U]. --to <address> also saves it as the chain's recipient. */
   async mint([key]) {
     const type = await needType(key);
     const { metaBase, set } = await load('/src/settings.ts');
+    const sample = Number(flags.sample ?? 1);
+    if (!flags.uri && !(Number.isInteger(sample) && sample >= 1 && sample <= 6)) throw new Error('--sample is 1-6');
     if (flags.to && flags.to !== 'self') set(`recipient.${FAMILY[type.chain]}`, flags.to);
-    const uri = flags.uri ?? `${metaBase()}/${(Number(flags.sample ?? 0) % 6) + 1}.json`;
+    const uri = flags.uri ?? `${metaBase()}/${sample}.json`;
     const r = await type.mint({ to: flags.to && flags.to !== 'self' ? 'recipient' : 'self', uri, name: flags.name ?? `${type.label} ${Date.now()}` });
     return { status: r.status, tx: r.tx, code: r.code, message: r.message, nftId: r.nft?.id, holderAddress: r.nft?.holderAddress };
   },
@@ -100,7 +102,7 @@ const commands = {
     const x = await load('/src/chains/xrpl.ts');
     const all = [...await x.myOffers(), ...await x.incomingOffers()];
     const offer = all.find((o) => o.index === index);
-    if (!offer) throw new Error(`Offer ${index} isn't aimed at the playground`);
+    if (!offer) throw new Error(`Offer ${index} isn't aimed at the lab wallet`);
     return x.accept(offer);
   },
   async cancel([index]) {

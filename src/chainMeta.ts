@@ -87,9 +87,9 @@ export const readback = (n: TestNft) => typeOf(n.type)?.readback(n).then((st) =>
 /** Re-reads every logged holder on this chain's current network (sends accepted elsewhere change them silently). */
 export const readbackAll = (c: Chain) => Promise.all(inventory.list().filter((n) => n.chain === c && n.network === netOf(c)).map((n) => readback(n)?.catch(() => {})));
 
-/** One NFTs-table row. `nft`: minted here (type, log, the type's actions). `held`: the wallet holds it. `held` only = untracked. */
+/** One NFTs-table row. `nft`: minted here (type, log, the type's actions). `held`: the lab wallet holds it. `held` only = untracked. */
 export type Row = { id: string; chain: Chain; nft?: TestNft; held?: Nft; holder: Holder };
-/** The wallet's listing merged with this network's mint log, keyed by id. The live listing wins for "In wallet". */
+/** The lab wallet's listing merged with this network's mint log, keyed by id. The live listing wins for "In lab wallet". */
 export function useRows(chain: Chain): Row[] {
   const network = netOf(chain);
   const log = useInventory().filter((n) => n.chain === chain && n.network === network);

@@ -8,8 +8,6 @@ export type LogEntry = { at: number; action: string; tx?: string; result: string
 export type TestNft = {
   chain: Chain; type: string; network: string; id: string; name: string; uri?: string;
   mintedAt: number; mintTx: string; holder: Holder; holderAddress?: string; amount?: string; log: LogEntry[];
-  /** Test-only key material the type needs later (a Stellar issuer secret). Throwaway, like every key here. */
-  secrets?: Record<string, string>;
 };
 
 const KEY = ns('inventory');

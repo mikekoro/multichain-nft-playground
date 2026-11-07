@@ -64,7 +64,7 @@ function XrplOffers({ recipient }: { recipient: string }) {
   return (
     <>
       <Err text={err} />
-      <Panel title="Offers to me" description="Sell offers aimed at the playground wallet, and bids on what it holds." count={incoming?.length} onRefresh={refresh} loading={loading}>
+      <Panel title="Offers to me" description="Sell offers aimed at the lab wallet, and bids on what it holds." count={incoming?.length} onRefresh={refresh} loading={loading}>
         {table(incoming, 'From', (o) => <Button size="sm" variant="outline" disabled={isBusy(o.index)} onClick={() => run(o.index, 'accept offer', () => x.accept(o), refresh)}>Accept</Button>)}
       </Panel>
       <Panel title="My open offers" description="Each open offer locks 0.2 XRP of reserve until it is accepted or cancelled." count={mine?.length} onRefresh={refresh} loading={loading}>

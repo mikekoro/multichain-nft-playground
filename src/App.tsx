@@ -40,7 +40,7 @@ function NavItem({ route, current, icon, label, children }: { route: Route; curr
 function ChainNav({ chain, current }: { chain: Chain; current: Route }) {
   const m = META[chain];
   const isLow = low(useBalance(chain), m.need);
-  // The same rows as the chain page's NFTs table: the wallet's listing merged with the mint log.
+  // The same rows as the chain page's NFTs table: the lab wallet's listing merged with the mint log.
   const count = useRows(chain).length;
   return (
     <NavItem route={chain} current={current} icon={<ChainLogo src={m.logo} />} label={m.label}>

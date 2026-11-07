@@ -15,22 +15,15 @@ export const chainKey = () => { const k = get('evm.chain'); return k in chains ?
 const chain = () => chains[chainKey()];
 /** Per-chain RPC from .env: VITE_EVM_RPC_BASESEPOLIA, VITE_EVM_RPC_SEPOLIA, VITE_EVM_RPC_ARBITRUM_MAINNET. */
 export const rpcUrl = (key = chainKey()) => endpoint(`EVM_RPC_${key.toUpperCase()}`);
-/** `key` reads another chain (the funding overview). */
+/** `key` defaults to the selected EVM network. */
 const pub = (key = chainKey()) => createPublicClient({ chain: chains[key], transport: http(rpcUrl(key)) });
 const wal = (key = chainKey()) => createWalletClient({ account, chain: chains[key], transport: http(rpcUrl(key)) });
 export const explorer = () => `${chain().blockExplorers?.default.url}/address/${address}`;
 
 export const contract = () => get(`evm.contract.${chainKey()}`) as Address | '';
 
-export async function balance(key = chainKey()) { return `${formatEther(await pub(key).getBalance({ address }))} ETH`; }
+export async function balance() { return `${formatEther(await pub().getBalance({ address }))} ETH`; }
 
-export async function deploy() {
-  const hash = await wal().deployContract({ abi, bytecode: artifact.bytecode as `0x${string}` });
-  const r = await pub().waitForTransactionReceipt({ hash });
-  if (!r.contractAddress) throw new Error(`deploy ${r.status}, no address`);
-  set(`evm.contract.${chainKey()}`, r.contractAddress);
-  return `deployed ${r.contractAddress} tx=${hash}`;
-}
 
 async function write(functionName: string, args: unknown[]) {
   const addr = contract();
@@ -39,7 +32,6 @@ async function write(functionName: string, args: unknown[]) {
   const r = await pub().waitForTransactionReceipt({ hash });
   return `${r.status} tx=${hash}`;
 }
-export const mint = (to: string, uri: string) => write('mint', [to, uri]);
 export const send = (id: string, to: string) => write('safeTransferFrom', [address, to, BigInt(id)]);
 
 export async function owned(): Promise<Nft[]> {

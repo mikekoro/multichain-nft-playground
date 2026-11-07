@@ -29,7 +29,7 @@ function ChainCard({ chain, onQr }: { chain: Chain; onQr: () => void }) {
         </div>
         <div className="relative z-10 -mr-2 flex items-center">
           <IconBtn label="Show QR code" icon={QrCode} onClick={onQr} />
-          <CopyBtn value={m.address()} label="Copy wallet address" />
+          <CopyBtn value={m.address()} label="Copy lab wallet address" />
           <IconBtn label="Refresh balance" icon={RefreshCw} onClick={() => refreshBalance(chain)} />
         </div>
       </div>
@@ -68,7 +68,7 @@ export default function Overview() {
     <div className="space-y-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
-        <p className="text-sm text-muted-foreground">Fund each playground wallet, set the recipient (the wallet under test), then mint from a chain page.</p>
+        <p className="text-sm text-muted-foreground">Fund each lab wallet, set the recipient (the wallet under test), then mint from a chain page.</p>
       </div>
       <div className="grid gap-6 md:grid-cols-2">{CHAINS.map((c) => <ChainCard key={c} chain={c} onQr={() => setQr(c)} />)}</div>
       {qr && <QrDialog title={`${META[qr].label} · ${META[qr].network()}`} address={META[qr].address()} onClose={() => setQr(null)} />}

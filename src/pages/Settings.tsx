@@ -16,15 +16,15 @@ export default function Settings() {
         <h2 className="text-base leading-5 font-semibold">Metadata</h2>
         <Input label="Sample base URL" value={base} onChange={(v) => { set('meta.base', v); setBase(v); }} mono
           placeholder="https://raw.githubusercontent.com/.../public/samples"
-          hint="Leave blank to use this repo on GitHub. Wallets fetch these files directly, so the host has to be public." />
+          hint="Leave blank for the default samples on GitHub. Wallets fetch these files directly, so the host has to be public." />
         <div>
           <h3 className="text-sm font-medium">Hosting the samples somewhere else</h3>
             <ol className="mt-2 space-y-2 pl-6 text-sm text-muted-foreground marker:font-mono marker:text-muted-foreground/60 list-decimal">
-              <li className="pl-2">Copy <Code>public/samples/</Code> to any static host.</li>
               <li className="space-y-2 pl-2">
                 <p>Regenerate the metadata with your URL:</p>
                 <div className="flex items-center gap-2 rounded-lg border bg-sidebar py-1 pr-1 pl-4"><code className="min-w-0 flex-1 truncate font-mono text-sm text-foreground">{SAMPLES_CMD}</code><CopyBtn value={SAMPLES_CMD} label="Copy command" /></div>
               </li>
+              <li className="pl-2">Upload <Code>public/samples/</Code> to that host.</li>
               <li className="pl-2">Paste the base URL into the field above.</li>
             </ol>
         </div>

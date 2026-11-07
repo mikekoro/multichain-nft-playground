@@ -20,7 +20,7 @@ async function readback(nft: TestNft): Promise<ChainState> {
     } };
   }
   // Both reads succeeded and neither account holds it: a definite state (burned, or accepted by someone else), not 'unknown'.
-  return { holder: 'other', raw: null, fields: { note: recipient ? 'not held by the playground or the recipient: burned, or held elsewhere' : 'not held by the playground; no recipient address set to check' } };
+  return { holder: 'other', raw: null, fields: { note: recipient ? 'not held by the lab wallet or the recipient: burned, or held elsewhere' : 'not held by the lab wallet; no recipient address set to check' } };
 }
 
 function make(key: string, label: string, why: string, flags: number, fee: number | undefined): NftType {
@@ -39,7 +39,6 @@ function make(key: string, label: string, why: string, flags: number, fee: numbe
     transfer: async (nft, to, o) => validAddress('xrpl', to) ? x.sellOffer(nft.id, to, o?.priceXrp ?? '0') : { status: 'refused', message: `${to} is not an XRPL address (not broadcast)` },
     readback,
     extra: {
-      'Offer to unfunded spare (expect tecNO_DST)': (nft) => x.sellOffer(nft.id, x.spare, '0'),
       // Verified on testnet 2026-10-20: a holder's sell offer back to the issuer is tefNFTOKEN_IS_NOT_TRANSFERABLE; only the issuer can move it.
       ...(flags & XRPL_FLAGS.transferable ? {} : { 'Buy back from holder (issuer bid, 0.001 XRP)': (nft: TestNft): Promise<Result> => x.buyOffer(nft.id, nft.holderAddress ?? needRecipient(), '0.001') }),
       ...(flags & XRPL_FLAGS.burnable ? { 'Burn (issuer)': async (nft: TestNft): Promise<Result> => x.burn(nft.id, nft.holderAddress) } : {}),
@@ -50,7 +49,7 @@ function make(key: string, label: string, why: string, flags: number, fee: numbe
 
 export const xrplTypes: NftType[] = [
   make('xrpl.transferable', 'Transferable', 'The baseline: a wallet should list it, send it, and handle offers in both directions.', XRPL_FLAGS.transferable, undefined),
-  make('xrpl.nontransferable', 'Non-transferable', 'Only the issuer (the playground) can move it: a holder cannot even offer it back (tefNFTOKEN_IS_NOT_TRANSFERABLE on the dry run). A wallet should show it as non-transferable. Return path: "Buy back from holder", then accept the bid in the wallet.', 0, undefined),
+  make('xrpl.nontransferable', 'Non-transferable', 'Only the issuer (the lab wallet) can move it: a holder cannot even offer it back (tefNFTOKEN_IS_NOT_TRANSFERABLE on the dry run). A wallet should show it as non-transferable. Return path: "Buy back from holder", then accept the bid in the wallet.', 0, undefined),
   make('xrpl.royalty', 'Royalty 5%', 'TransferFee 5000: the issuer takes 5 % of a priced sale (gifts pay nothing). A wallet should show the seller what they receive after the fee.', XRPL_FLAGS.transferable, transferFee(5)),
   make('xrpl.burnable', 'Burnable', 'tfBurnable: the issuer can burn it out of any holder. After a burn, a wallet should drop it and its offers on refresh.', XRPL_FLAGS.transferable | XRPL_FLAGS.burnable, undefined),
 ];

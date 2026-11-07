@@ -82,8 +82,8 @@ export function Balance({ value, low, className }: { value: string; low?: boolea
 
 /** Red is for failures only: "Elsewhere" is a normal result of a send. */
 const HOLDER: Record<Holder, string> = { playground: 'text-foreground', recipient: 'text-success', other: 'text-muted-foreground', unknown: 'text-warning' };
-/** Plain words for where an NFT is; never "playground"/"other" in the UI. */
-export const HOLDER_LABEL: Record<Holder, string> = { playground: 'In wallet', recipient: 'At recipient', other: 'Elsewhere', unknown: 'Unknown' };
+/** Plain words for where an NFT is. The minting wallet is always "lab wallet" in the UI. */
+export const HOLDER_LABEL: Record<Holder, string> = { playground: 'In lab wallet', recipient: 'At recipient', other: 'Elsewhere', unknown: 'Unknown' };
 /** Status as plain coloured text, never a badge. */
 export const HolderText = ({ holder }: { holder: Holder }) => <span className={HOLDER[holder]}>{HOLDER_LABEL[holder]}</span>;
 
@@ -178,7 +178,7 @@ export function QrDialog({ title, address, onClose }: { title: string; address: 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="sm:max-w-sm">
-        <DialogHeader><DialogTitle>{title}</DialogTitle><DialogDescription>Scan to fund this wallet.</DialogDescription></DialogHeader>
+        <DialogHeader><DialogTitle>{title}</DialogTitle><DialogDescription>Scan to fund the lab wallet.</DialogDescription></DialogHeader>
         <img src={qr.createDataURL(8, 2)} alt={`QR code for ${address}`} className="mx-auto rounded-md [image-rendering:pixelated]" />
         <div className="flex items-center gap-2 rounded-md border bg-muted/40 py-1 pr-1 pl-3"><code className="min-w-0 flex-1 font-mono text-xs break-all">{address}</code><CopyBtn value={address} /></div>
       </DialogContent>
@@ -216,7 +216,7 @@ export function SendDialog({ chain, title, initialTo = '', price, amount, onSend
       <DialogContent className="sm:max-w-md">
         <form className="grid gap-6" onSubmit={(ev) => { ev.preventDefault(); if (ok) { onSend(to.trim(), { priceXrp, amount: amt }); onClose(); } }}>
           <DialogHeader><DialogTitle>{title}</DialogTitle>
-            <DialogDescription>{chain === 'xrpl' ? 'Creates a sell offer the receiver must accept.' : 'Signed and sent from the playground wallet.'}</DialogDescription></DialogHeader>
+            <DialogDescription>{chain === 'xrpl' ? 'Creates a sell offer the receiver must accept.' : 'Signed and sent from the lab wallet.'}</DialogDescription></DialogHeader>
           <div className="grid gap-4">
             <AddressInput chain={chain} label="Address" value={to} onChange={setTo} />
             {price && <Input label="Price (XRP, 0 = gift)" type="number" min={0} step="any" value={priceXrp} onChange={setPrice} error={priceBad ? '0 or more' : undefined} />}

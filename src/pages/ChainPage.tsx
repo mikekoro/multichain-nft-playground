@@ -1,11 +1,10 @@
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
-import { ChevronRight, CircleAlert, CircleCheck, Ellipsis, Loader2, Lock, Pencil, RefreshCw, Send, TriangleAlert } from 'lucide-react';
+import { CircleAlert, CircleCheck, Ellipsis, Loader2, Lock, Pencil, RefreshCw, Send, TriangleAlert } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -68,7 +67,7 @@ export default function ChainPage({ chain, extra = [] }: { chain: Chain; extra?:
   );
 }
 
-/** Header line 1: the playground wallet as a quick reference. Copy, QR and funding live on the Overview card. */
+/** Header line 1: the lab wallet as a quick reference. Copy and QR live on the Overview card. */
 function WalletLine({ chain }: { chain: Chain }) {
   const m = META[chain];
   const bal = useBalance(chain);
@@ -176,7 +175,7 @@ function MintCard({ chain, recipient, onView }: { chain: Chain; recipient: strin
             <Select value={to} onValueChange={(v: typeof to) => setTo(v)}>
               <SelectTrigger id={destId} className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="self">Playground wallet</SelectItem>
+                <SelectItem value="self">Lab wallet</SelectItem>
                 <SelectItem value="recipient" disabled={!rOk}>Recipient{chain === 'xrpl' ? ' (mint, then offer)' : ''}</SelectItem>
               </SelectContent>
             </Select>
@@ -226,8 +225,8 @@ function XrplCustomMint({ uri, onDone }: { uri: string; onDone: () => void }) {
   );
 }
 
-// ── NFTs: the wallet's on-chain listing merged with the local mint log, one row per NFT id (useRows) ─────
-/** An untracked NFT's transfer (the old holdings actions). XRPL: a sell offer, priced or a gift. */
+// ── NFTs: the lab wallet's on-chain listing merged with the local mint log, one row per NFT id (useRows) ─────
+/** An untracked NFT's transfer. XRPL: a sell offer, priced or a gift. */
 const sendHeld = (chain: Chain, id: string, to: string, priceXrp: string) =>
   chain === 'xrpl' ? x.sellOffer(id, to, priceXrp) : chain === 'evm' ? e.send(id.split(':')[1], to) : s.send(id, to);
 const heldExplorer = (chain: Chain, id: string) => chain === 'xrpl' ? `${x.explorerBase}/nft/${id}`
@@ -235,7 +234,7 @@ const heldExplorer = (chain: Chain, id: string) => chain === 'xrpl' ? `${x.explo
   : `https://explorer.solana.com/address/${id}${s.cluster}`;
 /** A malformed id (hand-edited storage) must not take the page down with it. */
 const explorerOf = (r: Row) => { try { return r.nft ? typeOf(r.nft.type)?.explorer(r.nft) : heldExplorer(r.chain, r.id); } catch { return undefined; } };
-/** Sends only make sense from the playground wallet; "unknown" may still be here. */
+/** Sends only make sense from the lab wallet; "unknown" may still be here. */
 const isHeld = (r: Row) => r.holder === 'playground' || r.holder === 'unknown';
 /** The minted name, else the metadata's, else the short id (untracked rows must be told apart). */
 function useName(r: Row) {
@@ -244,7 +243,7 @@ function useName(r: Row) {
   return r.nft?.name ?? meta.name ?? r.held?.name ?? `NFT ${short(r.id.split(':').pop()!)}`;
 }
 
-const FILTERS = [['all', 'All'], ['playground', 'In wallet'], ['recipient', 'At recipient'], ['other', 'Elsewhere'], ['untracked', 'Untracked']] as const;
+const FILTERS = [['all', 'All'], ['playground', 'In lab wallet'], ['recipient', 'At recipient'], ['other', 'Elsewhere'], ['untracked', 'Untracked']] as const;
 type Filter = (typeof FILTERS)[number][0];
 const matches = (r: Row, f: Filter) => f === 'all' || (f === 'untracked' ? !r.nft : r.holder === f);
 type Dialog = { row: Row; to: string; title: string };
@@ -292,8 +291,8 @@ function NftsCard({ chain, recipient, openId, setOpenId }: { chain: Chain; recip
     <Card>
       <CardHeader>
         <CardTitle>NFTs</CardTitle>
-        <CardDescription>NFTs in this wallet, plus every NFT minted here, wherever it went.</CardDescription>
-        <CardAction className="-mr-2"><IconBtn label="Re-read the wallet and every holder" icon={RefreshCw} onClick={refreshAll} className={cn(loading > 0 && '[&_svg]:animate-spin')} /></CardAction>
+        <CardDescription>NFTs in the lab wallet, plus every NFT minted here, wherever it went.</CardDescription>
+        <CardAction className="-mr-2"><IconBtn label="Re-read the lab wallet and every holder" icon={RefreshCw} onClick={refreshAll} className={cn(loading > 0 && '[&_svg]:animate-spin')} /></CardAction>
       </CardHeader>
       <CardContent className="space-y-4">
         {rows.length > 0 && (
@@ -301,9 +300,8 @@ function NftsCard({ chain, recipient, openId, setOpenId }: { chain: Chain; recip
             {FILTERS.map(([f, label]) => <ToggleGroupItem key={f} value={f} data-count={count(f)} className="px-2.5 whitespace-nowrap focus-visible:border-input focus-visible:bg-accent focus-visible:ring-0 data-[count=0]:text-muted-foreground">{label}<span className="text-muted-foreground tabular-nums">{count(f)}</span></ToggleGroupItem>)}
           </ToggleGroup>
         )}
-        {heldErr && <p className="text-sm text-destructive">Could not read the wallet: {heldErr}</p>}
-        {(
-            <div className="overflow-hidden rounded-lg border">
+        {heldErr && <p className="text-sm text-destructive">Could not read the lab wallet: {heldErr}</p>}
+        <div className="overflow-hidden rounded-lg border">
               <Table className="table-fixed">
                 <TableHeader className="bg-muted/30"><TableRow>
                   <TableHead className="pl-3">NFT</TableHead>
@@ -312,10 +310,9 @@ function NftsCard({ chain, recipient, openId, setOpenId }: { chain: Chain; recip
                   <TableHead className="w-12 sm:w-20"><span className="sr-only">Actions</span></TableHead>
                 </TableRow></TableHeader>
                 <TableBody>{shown.length ? shown.map((r) => <NftRow key={r.id} row={r} {...actions} />)
-                  : <EmptyRow cols={4}>{rows.length ? 'Nothing here. Try another filter.' : reading ? <Loading>Reading the wallet...</Loading> : `No NFTs on ${META[chain].label} yet. Mint one above.`}</EmptyRow>}</TableBody>
+                  : <EmptyRow cols={4}>{rows.length ? 'Nothing here. Try another filter.' : reading ? <Loading>Reading the lab wallet...</Loading> : `No NFTs on ${META[chain].label} yet. Mint one above.`}</EmptyRow>}</TableBody>
               </Table>
-            </div>
-          )}
+        </div>
       </CardContent>
       {opened && <DetailSheet row={opened} onClose={() => setOpenId(null)} {...actions} />}
       {dialog && <SendDialog chain={chain} title={dialog.title} initialTo={dialog.to} price={xrpl} amount={dialog.row.nft?.amount} onClose={() => setDialog(null)}
@@ -329,9 +326,9 @@ type RowActions = { toRecipient: (r: Row) => void; sendTo: (r: Row) => void; sen
 
 /** The XRPL flags line, muted; NON-transferable gets a lock, not red (red is for failures). */
 const Note = ({ note }: { note?: string }) => note ? <span className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground" title={note}>{/NON-transferable/.test(note) && <Lock className="size-3 shrink-0" aria-label="Non-transferable" />}<span className="truncate">{note}</span></span> : null;
-/** A type key the registry no longer knows: a muted badge, not the raw key. */
+/** A type key the registry no longer knows: muted text, not the raw key. */
 const UnknownType = () => <span className="text-muted-foreground">unknown type</span>;
-/** Holder badge plus an "Offer open" badge for XRPL NFTs with a sell offer waiting. */
+/** Holder text plus an "Offer open" note for XRPL NFTs with a sell offer waiting. */
 function Where({ row, offers }: { row: Row; offers: Set<string> }) {
   return (
     <span className="flex flex-wrap items-center gap-x-2 text-sm">
@@ -390,7 +387,7 @@ function RowMenu({ row, name, toRecipient, sendTo, send, act, open, isBusy, rOk,
       <DropdownMenuContent align="end" className="w-60">
         <DropdownMenuItem className="sm:hidden" disabled={off || !rOk} onSelect={() => toRecipient(row)}>{sendLabel}</DropdownMenuItem>
         <DropdownMenuItem disabled={off} onSelect={() => sendTo(row)}>{row.chain === 'xrpl' ? 'Offer to address...' : 'Send to address...'}</DropdownMenuItem>
-        {row.chain === 'xrpl' && <DropdownMenuItem disabled={off} onSelect={() => send(row, x.spare, { priceXrp: '0' })}>Offer to unfunded spare</DropdownMenuItem>}
+        {row.chain === 'xrpl' && <DropdownMenuItem disabled={off} onSelect={() => send(row, x.spare, { priceXrp: '0' })}>Offer to unfunded spare (expect tecNO_DST)</DropdownMenuItem>}
         {nft && Object.entries(type?.extra ?? {}).map(([k, fn]) => { const risky = /burn|claw/i.test(k); return (
           <DropdownMenuItem key={k} disabled={busy} variant={risky ? 'destructive' : 'default'}
             onSelect={() => { if (!risky || confirm(`${k} ${name}? This cannot be undone.`)) act(nft, k, () => fn(nft)); }}>{k}</DropdownMenuItem>); })}
@@ -430,7 +427,7 @@ function DetailSheet({ row, onClose, toRecipient, sendTo, isBusy, rOk, offers, s
         </SheetHeader>
         {row.nft ? <TrackedBody nft={row.nft} holder={row.holder} /> : (
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-6">
-            <p className="text-sm text-muted-foreground">The playground wallet holds this NFT, but it was not minted from a type here, so it has no readback or activity.</p>
+            <p className="text-sm text-muted-foreground">The lab wallet holds this NFT, but it was not minted from a type here, so it has no readback or activity.</p>
             <KV rows={[
               ['ID', <IdCell value={row.id} href={explorerOf(row)} />],
               ['Network', row.chain === 'evm' ? META.evm.network() : `${META[row.chain].label} ${META[row.chain].network()}`],
@@ -440,7 +437,7 @@ function DetailSheet({ row, onClose, toRecipient, sendTo, isBusy, rOk, offers, s
           </div>
         )}
         <SheetFooter className="flex-row items-center gap-2 border-t p-6">
-          {!isHeld(row) ? <p className="flex-1 text-sm text-muted-foreground">Not in this wallet, so it cannot be sent from here.</p> : <>
+          {!isHeld(row) ? <p className="flex-1 text-sm text-muted-foreground">Not in the lab wallet, so it cannot be sent from here.</p> : <>
           <Button className="flex-1" disabled={busy || !rOk} onClick={() => toRecipient(row)}>{isBusy(row.id) ? <Loader2 className="animate-spin" /> : <Send />}{sendLabel}</Button>
           <Button className="flex-1" variant="outline" disabled={busy} onClick={() => sendTo(row)}>{row.chain === 'xrpl' ? 'Offer to address...' : 'Send to address...'}</Button></>}
         </SheetFooter>
@@ -487,7 +484,6 @@ function TrackedBody({ nft, holder }: { nft: TestNft; holder: Row['holder'] }) {
           <div className="space-y-2"><div className="text-sm font-medium">Raw</div>
             <ScrollArea className="h-56 rounded-lg border bg-muted/30"><pre className="p-3 font-mono text-xs break-all whitespace-pre-wrap">{json(state.raw)}</pre></ScrollArea></div>
         </>}
-        {nft.secrets && <Secrets secrets={nft.secrets} />}
       </TabsContent>
       <TabsContent value="activity">
         {nft.log.length === 0 ? <p className="text-sm text-muted-foreground">No activity yet.</p> : (
@@ -507,12 +503,3 @@ function TrackedBody({ nft, holder }: { nft: TestNft; holder: Row['holder'] }) {
   );
 }
 
-function Secrets({ secrets }: { secrets: Record<string, string> }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger asChild><Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground"><ChevronRight className={cn('transition-transform', open && 'rotate-90')} />Test secrets</Button></CollapsibleTrigger>
-      <CollapsibleContent><pre className="mt-2 rounded-lg border bg-muted/30 p-3 font-mono text-xs break-all whitespace-pre-wrap">{json(secrets)}</pre></CollapsibleContent>
-    </Collapsible>
-  );
-}

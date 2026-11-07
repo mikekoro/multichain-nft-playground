@@ -43,12 +43,6 @@ export function run(label: string, build: () => Promise<{ sendAndConfirm: (u: Um
   });
 }
 
-// ── the existing ad-hoc tab ──
-export async function mint(o: { name: string; uri: string; to?: string }) {
-  const mintSigner = generateSigner(umi);
-  const r = await run('mint', () => createNft(umi, { mint: mintSigner, name: o.name, uri: o.uri, sellerFeeBasisPoints: percentAmount(0), ...(o.to ? { tokenOwner: publicKey(o.to) } : {}) }));
-  return r.status === 'confirmed' ? `minted ${mintSigner.publicKey} sig=${r.tx}` : `${r.status}: ${r.message}`;
-}
 export async function owned(): Promise<Nft[]> {
   const assets = await fetchAllDigitalAssetWithTokenByOwner(umi, kp.publicKey);
   return assets.map((a) => ({ id: a.publicKey.toString(), name: a.metadata.name, uri: a.metadata.uri }));
