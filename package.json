@@ -1,0 +1,60 @@
+{
+  "name": "multichain-nft-playground",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikekoro/multichain-nft-playground.git"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "vite",
+    "dev:mainnet": "VITE_NETWORK=mainnet vite",
+    "build": "tsc -b && vite build",
+    "wallets": "node scripts/gen-wallets.mjs",
+    "samples": "python3 scripts/gen-samples.py",
+    "compile": "node scripts/compile-erc721.mjs",
+    "build:soroban": "sh scripts/build-soroban.sh",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@metaplex-foundation/digital-asset-standard-api": "^2.1.1",
+    "@metaplex-foundation/mpl-bubblegum": "^6.0.0",
+    "@metaplex-foundation/mpl-core": "^1.10.0",
+    "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
+    "@metaplex-foundation/mpl-toolbox": "^0.11.5",
+    "@metaplex-foundation/umi": "^1.6.0",
+    "@metaplex-foundation/umi-bundle-defaults": "^1.6.0",
+    "@solana/web3.js": "^1.99.0",
+    "@stellar/stellar-sdk": "^17.2.1",
+    "buffer": "^6.0.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.70.0",
+    "qrcode-generator": "^2.0.4",
+    "radix-ui": "^1.8.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "sonner": "^2.0.8",
+    "tailwind-merge": "^3.7.0",
+    "tw-animate-css": "^1.4.0",
+    "viem": "^2.57.7",
+    "xrpl": "^5.3.0"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "^5.6.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "solc": "^0.8.37",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4"
+  }
+}

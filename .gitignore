@@ -1,0 +1,9 @@
+node_modules
+dist
+*.local
+.DS_Store
+contracts/soroban/target
+PLAN.md
+.env.*
+!.env.example
+*.tsbuildinfo
