@@ -2,6 +2,8 @@
 
 A local web app (and `scripts/nft.mjs` CLI) that mints test NFTs of 15 edge-case types on XRPL, EVM, Solana and Stellar/Soroban and sends them to a wallet under test.
 
+![Overview: one card per chain with the playground wallet's balance, the recipient and its NFTs](docs/overview.png)
+
 **Warning:** the keys are in the bundle, so never deploy this; mainnet mode (`VITE_NETWORK=mainnet`, CLI `--mainnet`) spends real funds.
 
 ## Setup
